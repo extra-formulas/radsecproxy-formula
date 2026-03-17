@@ -1,0 +1,8 @@
+user_name: radsecproxy
+group_name: radsecproxy
+service_name: radsecproxy
+conf_file: /etc/radsecproxy.conf
+cert_dir: /etc/pki/radsecproxy/
+ca_relative_dir: cacerts/
+listen_udp: 1812
+log_level: 5

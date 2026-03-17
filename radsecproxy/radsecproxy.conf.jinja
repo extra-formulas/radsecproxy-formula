@@ -1,0 +1,41 @@
+ListenUDP {{ listen_udp }}
+LogLevel  {{ log_level }}
+
+tls defaultserver {
+{%- if cert_ca is defined and (cert_ca is not none) %}
+    CACertificateFile {{ cert_dir }}{{ ca_relative_dir }}{{ cert_ca.file_name }}
+{%- endif %}
+{%- if cert_pub is defined and (cert_pub is not none) %}
+    CertificateFile   {{ cert_dir }}{{ cert_pub.file_name }}
+{%- endif %}
+{%- if cert_key is defined and (cert_key is not none) %}
+    CertificateKeyFile {{ cert_dir }}{{ cert_key.file_name }}
+{%- if cert_key.password is defined and (cert_key.password is not none) %}
+    CertificateKeyPassword "{{ cert_key.password }}"
+{%- endif %}
+{%- endif %}
+}
+
+{%- for name, client in clients.items() %}
+client {{ name }} {
+    {%- for host in client.hosts %}
+    host   {{ host }}
+    {%- endfor %}
+    type   {{ client.type }}
+    secret "{{ client.secret }}"
+}
+{%- endfor %}
+
+{%- for name, srv in servers.items() %}
+server {{ name }} {
+    host    {{ srv.host }}
+    port    {{ srv.port }}
+    type    {{ srv.type }}
+    secret  "{{ srv.secret }}"
+    TLS     {{ srv.tls_block }}
+}
+{%- endfor %}
+
+realm * {
+    server {{ servers.keys()|first }}
+}
